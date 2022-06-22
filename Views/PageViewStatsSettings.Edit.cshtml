@@ -1,0 +1,25 @@
+@model Neolution.OrchardCoreModules.PageViewStats.ViewModels.PageViewStatsSettingsViewModel
+
+<fieldset class="form-group" asp-validation-class-for="IsEnabled">
+    <div class="custom-control custom-checkbox">
+        <input asp-for="IsEnabled" class="custom-control-input" type="checkbox" />
+        <label asp-for="IsEnabled" class="custom-control-label">@T["Enable page view statistics"]</label>
+    </div>
+    <span class="hint">@T["Do you generally want to collect and count the page views of your visitors?"]</span>
+</fieldset>
+
+<fieldset class="form-group" asp-validation-class-for="CollectUserIp">
+    <div class="custom-control custom-checkbox">
+        <input asp-for="CollectUserIp" class="custom-control-input" type="checkbox" />
+        <label asp-for="CollectUserIp" class="custom-control-label">@T["Collect IP addresses of visitors"]</label>
+    </div>
+    <span class="hint">@T["Collecting the IP addresses of your visitors may allow you to track from which country they visit your site."]</span>
+</fieldset>
+
+<fieldset class="form-group" asp-validation-class-for="CollectUserAgentString">
+    <div class="custom-control custom-checkbox">
+        <input asp-for="CollectUserAgentString" class="custom-control-input" type="checkbox" />
+        <label asp-for="CollectUserAgentString" class="custom-control-label">@T["Collect user agent strings of visitors"]</label>
+    </div>
+    <span class="hint">@T["Collecting the user agent strings may allow you to track which browsers visitors use to visit your site."]</span>
+</fieldset>

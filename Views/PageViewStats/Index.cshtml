@@ -1,0 +1,56 @@
+﻿@model Neolution.OrchardCoreModules.PageViewStats.ViewModels.PageViewStatsViewModel
+
+<div class="row">
+    <div class="col">
+        <h1>Page View Statistics</h1>
+        <div class="form-group d-inline-flex float-right mb-1">
+            <div class="btn-group">
+                <div class="dropdown order-md-1">
+                    <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="new-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Last @Model.History days
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right scrollable" aria-labelledby="bulk-action-menu-button">
+                        <a class="dropdown-item" href="?history=7">Last week</a>
+                        <a class="dropdown-item" href="?history=14">Last two weeks</a>
+                        <a class="dropdown-item" href="?history=21">Last three weeks</a>
+                        <a class="dropdown-item" href="?history=30">Last month</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <table class="table table-sm table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Views</th>
+                    <th>Bot Views</th>
+                    <th>Unique Visitors</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.DateGroupedPageViews)
+                {
+                    <tr>
+                        <td>@item.Date</td>
+                        <td>@item.Views</td>
+                        <td>@item.BotViews</td>
+                        <td>@item.UniqueVisitors</td>
+                    </tr>
+                }
+
+                @*@foreach (var item in Model.GroupedPageViews)
+                    {
+                    <tr>
+                    <td>@item.Amount</td>
+                    <td>/@item.Route.Path</td>
+                    <td>@item.DisplayText</td>
+                    </tr>
+                    }*@
+            </tbody>
+        </table>
+    </div>
+</div>
