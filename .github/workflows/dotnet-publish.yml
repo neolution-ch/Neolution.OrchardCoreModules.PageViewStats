@@ -1,0 +1,49 @@
+# https://docs.microsoft.com/en-us/azure/devops/artifacts/quickstarts/github-actions?view=azure-devops
+name: Publish NuGet package
+
+on:
+  push:
+    tags: 
+      - 'v*.*.*'
+  workflow_dispatch:
+
+env:
+  ARTIFACTS_FEED_URL: https://api.nuget.org/v3/index.json
+  BUILD_CONFIGURATION: "Release"
+  DOTNET_VERSION: "6.x"
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # Needed for GitVersion to function correctly
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+          source-url: ${{ env.ARTIFACTS_FEED_URL }}
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.NUGET_API_KEY_NEOLUTION }}
+      
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v0.9.7
+        with:
+          versionSpec: '5.x'
+          
+      - name: Determine version number
+        uses: gittools/actions/gitversion/execute@v0.9.7  
+
+      - name: Build and pack
+        run: |
+          dotnet restore
+          dotnet build --configuration '${{ env.BUILD_CONFIGURATION }}' -p:Version=$GITVERSION_NUGETVERSION
+          dotnet pack 'Neolution.DotNet.Console\Neolution.DotNet.Console.csproj' --configuration '${{ env.BUILD_CONFIGURATION }}' --no-build -p:PackageVersion=$GITVERSION_NUGETVERSION
+
+      - name: Push NuGet package
+        run: dotnet nuget push --skip-duplicate -k $NUGET_AUTH_TOKEN  **/bin/Release/*.nupkg
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.NUGET_API_KEY_NEOLUTION }}
