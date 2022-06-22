@@ -41,7 +41,7 @@ jobs:
         run: |
           dotnet restore
           dotnet build --configuration '${{ env.BUILD_CONFIGURATION }}' -p:Version=$GITVERSION_NUGETVERSION
-          dotnet pack 'Neolution.DotNet.Console\Neolution.DotNet.Console.csproj' --configuration '${{ env.BUILD_CONFIGURATION }}' --no-build -p:PackageVersion=$GITVERSION_NUGETVERSION
+          dotnet pack 'Neolution.OrchardCoreModules.PageViewStats\Neolution.OrchardCoreModules.PageViewStats.csproj' --configuration '${{ env.BUILD_CONFIGURATION }}' --no-build -p:PackageVersion=$GITVERSION_NUGETVERSION
 
       - name: Push NuGet package
         run: dotnet nuget push --skip-duplicate -k $NUGET_AUTH_TOKEN  **/bin/Release/*.nupkg
