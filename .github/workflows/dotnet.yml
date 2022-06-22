@@ -1,0 +1,34 @@
+name: CI
+
+on:  
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  BUILD_CONFIGURATION: "Release"
+  DOTNET_VERSION: "6.x"
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build --no-restore --configuration '${{ env.BUILD_CONFIGURATION }}'
+
+    #- name: Test
+    #  run: dotnet test --no-build --verbosity normal --configuration '${{ env.BUILD_CONFIGURATION }}'
