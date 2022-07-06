@@ -1,7 +1,6 @@
 ﻿namespace Neolution.OrchardCoreModules.PageViewStats.Models;
 
 using System;
-using OrchardCore.Settings;
 
 internal class UtcDay
 {

@@ -8,14 +8,10 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Neolution.OrchardCoreModules.PageViewStats.Queries;
-using Neolution.OrchardCoreModules.PageViewStats.Services;
 using Neolution.OrchardCoreModules.PageViewStats.ViewModels;
 using OrchardCore.Admin;
 using OrchardCore.Autoroute.Models;
 using OrchardCore.ContentManagement;
-using OrchardCore.Data;
-using OrchardCore.Settings;
-using YesSql;
 
 [Admin]
 public class DayController : Controller

@@ -9,7 +9,6 @@ using Dapper;
 using MediatR;
 using OrchardCore.Data;
 using OrchardCore.Settings;
-using YesSql;
 
 public class GetAvailablePageViewDatesQuery : IRequest<IList<DateOnly>>
 {
