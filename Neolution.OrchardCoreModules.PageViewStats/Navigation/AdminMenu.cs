@@ -1,15 +1,15 @@
-﻿namespace Neolution.OrchardCoreModules.PageViewStats;
+﻿namespace Neolution.OrchardCoreModules.PageViewStats.Navigation;
 
 using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Localization;
 using OrchardCore.Navigation;
 
-public class PageViewStatsAdminMenu : INavigationProvider
+public class AdminMenu : INavigationProvider
 {
     private readonly IStringLocalizer S;
 
-    public PageViewStatsAdminMenu(IStringLocalizer<PageViewStatsAdminMenu> localizer)
+    public AdminMenu(IStringLocalizer<AdminMenu> localizer)
     {
         S = localizer;
     }
@@ -20,8 +20,8 @@ public class PageViewStatsAdminMenu : INavigationProvider
         {
             builder.Add(S["Page Views"], S["Page Views"].PrefixPosition(), pageViewStats => pageViewStats
                 .AddClass("pageViewStats").Id("pageViewStats")
-                .Add(S["Statistics"], S["Statistics"].PrefixPosition(), settings => settings
-                    .Action("Index", "PageViewStats", new { area = "Neolution.OrchardCoreModules.PageViewStats" })
+                .Add(S["Dashboard"], S["Dashboard"].PrefixPosition("1"), settings => settings
+                    .Action("Index", "Dashboard", new { area = "Neolution.OrchardCoreModules.PageViewStats" })
                     .Permission(PageViewStatsPermissions.ViewPageViewStats)
                     .LocalNav()
                 )

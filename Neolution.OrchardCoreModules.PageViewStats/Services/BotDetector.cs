@@ -22,6 +22,11 @@
 
         public bool CheckUserAgentString(string userAgentString)
         {
+            if (string.IsNullOrWhiteSpace(userAgentString))
+            {
+                return false;
+            }
+
             return botList.Any(regex => regex.IsMatch(userAgentString));
         }
     }

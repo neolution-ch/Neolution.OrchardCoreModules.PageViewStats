@@ -10,6 +10,7 @@
     using Microsoft.AspNetCore.Mvc.RazorPages;
     using Microsoft.Extensions.Logging;
     using Neolution.OrchardCoreModules.PageViewStats.Models;
+    using Neolution.OrchardCoreModules.PageViewStats.Settings;
     using OrchardCore.Admin;
     using OrchardCore.Entities;
     using OrchardCore.ResourceManagement;

@@ -7,7 +7,7 @@
         /// <summary>
         /// The table name of the <see cref="PageView"/>.
         /// </summary>
-        public static string TableName = "PageViews";
+        internal static string TableName = "PageViews";
 
         /// <summary>
         /// The unique identifier of the <see cref="PageView"/>.

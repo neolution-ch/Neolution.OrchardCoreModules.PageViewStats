@@ -7,6 +7,7 @@ namespace Neolution.OrchardCoreModules.PageViewStats.Controllers
     using Microsoft.AspNetCore.Mvc;
     using Neolution.OrchardCoreModules.PageViewStats.Models;
     using Neolution.OrchardCoreModules.PageViewStats.Services;
+    using Neolution.OrchardCoreModules.PageViewStats.Settings;
     using OrchardCore.Data;
     using OrchardCore.Entities;
     using OrchardCore.Settings;

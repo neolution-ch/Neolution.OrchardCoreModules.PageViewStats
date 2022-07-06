@@ -8,19 +8,20 @@
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Http;
     using Neolution.OrchardCoreModules.PageViewStats.Models;
+    using Neolution.OrchardCoreModules.PageViewStats.Settings;
     using Neolution.OrchardCoreModules.PageViewStats.ViewModels;
     using OrchardCore.DisplayManagement.Entities;
     using OrchardCore.DisplayManagement.Handlers;
     using OrchardCore.DisplayManagement.Views;
     using OrchardCore.Settings;
 
-    public class PageViewStatsSiteSettingsDisplayDriver : SectionDisplayDriver<ISite, PageViewStatsSettings>
+    public class PageViewStatsSettingsDisplayDriver : SectionDisplayDriver<ISite, PageViewStatsSettings>
     {
         public const string GroupId = "pageViewStats";
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IAuthorizationService _authorizationService;
 
-        public PageViewStatsSiteSettingsDisplayDriver(IHttpContextAccessor httpContextAccessor, IAuthorizationService authorizationService)
+        public PageViewStatsSettingsDisplayDriver(IHttpContextAccessor httpContextAccessor, IAuthorizationService authorizationService)
         {
             _httpContextAccessor = httpContextAccessor;
             _authorizationService = authorizationService;

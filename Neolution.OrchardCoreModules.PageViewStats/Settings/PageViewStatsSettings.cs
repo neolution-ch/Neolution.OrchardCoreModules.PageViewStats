@@ -1,4 +1,4 @@
-﻿namespace Neolution.OrchardCoreModules.PageViewStats.Models
+﻿namespace Neolution.OrchardCoreModules.PageViewStats.Settings
 {
     public class PageViewStatsSettings
     {
