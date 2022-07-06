@@ -1,96 +1,115 @@
-﻿namespace Neolution.OrchardCoreModules.PageViewStats.Services
+﻿namespace Neolution.OrchardCoreModules.PageViewStats.Services;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using MediatR;
+using Neolution.OrchardCoreModules.PageViewStats.Extensions;
+using Neolution.OrchardCoreModules.PageViewStats.Models;
+using Neolution.OrchardCoreModules.PageViewStats.Queries;
+using OrchardCore.Documents;
+using OrchardCore.Settings;
+
+public interface IAggregateService
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-    using Dapper;
-    using Microsoft.Extensions.Logging;
-    using Neolution.OrchardCoreModules.PageViewStats.ViewModels;
-    using OrchardCore.Data;
-    using OrchardCore.Environment.Shell;
-    using OrchardCore.Indexing;
-    using YesSql;
+    Task<DailyArchive> CreateAggregateAsync(DateOnly date);
+}
 
-    public class PageViewsRepository
+public class AggregateService : IAggregateService
+{
+    private readonly ISiteService siteService;
+    private readonly ISender sender;
+    private readonly IBotDetector botDetector;
+
+    public AggregateService(ISiteService siteService, ISender sender, IBotDetector botDetector)
     {
-        private readonly ShellSettings shellSettings;
-        private readonly IStore store;
-        private readonly IDbConnectionAccessor dbConnectionAccessor;
-        private readonly ILogger<PageViewsRepository> logger;
-        private readonly string tablePrefix;
+        this.siteService = siteService;
+        this.sender = sender;
+        this.botDetector = botDetector;
+    }
 
-        public PageViewsRepository(ShellSettings shellSettings, IStore store, IDbConnectionAccessor dbConnectionAccessor, ILogger<PageViewsRepository> logger)
+    public async Task<DailyArchive> CreateAggregateAsync(DateOnly date)
+    {
+        var siteSettings = await this.siteService.GetSiteSettingsAsync();
+
+        var pageViews = await this.sender.Send(new GetPageViewsQuery(date));
+
+        var aggregate = new DailyArchive
         {
-            this.shellSettings = shellSettings;
-            this.store = store;
-            this.dbConnectionAccessor = dbConnectionAccessor;
-            this.logger = logger;
+            Id = date.ToString("yyyy-MM-dd"),
+            DateTimeZoneId = siteSettings.TimeZoneId,
+            CalculatedOn = DateTimeOffset.UtcNow,
+            TotalViews = pageViews.Count,
+            BotViews = pageViews.Count(x => this.botDetector.CheckUserAgentString(x.RequestUserAgentString)),
+            UniqueVisitors = pageViews.Select(x => new { x.RequestIpAddress, x.RequestUserAgentString }).Distinct().Count(),
+        };
 
-            tablePrefix = shellSettings["TablePrefix"];
-
-            if (!string.IsNullOrEmpty(tablePrefix))
+        var groupedPageViews = await this.sender.Send(new GetPageViewsPerDayQuery(date));
+        aggregate.PageViews = groupedPageViews
+            .Select(x => new PageViewsGroupedByContentItem
             {
-                tablePrefix += '_';
+                ContentItemId = x.ContentItemId,
+                TotalViews = x.TotalViews,
+                BotViews = x.BotViews,
+                UniqueVisitors = x.UniqueVisitors,
+            }).ToList();
+
+        return aggregate;
+    }
+}
+
+public interface IPageViewsRepository
+{
+    Task<IList<DailyArchive>> LoadPageViewsAsync(DateOnly earliest, DateOnly latest);
+}
+
+public class PageViewsRepository : IPageViewsRepository
+{
+    private readonly ISiteService siteService;
+    private readonly IAggregateService aggregateService;
+    private readonly IDocumentManager<PageViewArchive> documentManager;
+
+    public PageViewsRepository(ISiteService siteService, IAggregateService aggregateService, IDocumentManager<PageViewArchive> documentManager)
+    {
+        this.siteService = siteService;
+        this.aggregateService = aggregateService;
+        this.documentManager = documentManager;
+    }
+
+    public async Task<IList<DailyArchive>> LoadPageViewsAsync(DateOnly earliest, DateOnly latest)
+    {
+        var settings = await this.siteService.GetSiteSettingsAsync();
+        var today = DateOnlyExtensions.Today(settings);
+
+        var pageViewArchive = await documentManager.GetOrCreateMutableAsync();
+
+        var isDirty = false;
+        var result = new List<DailyArchive>();
+        var amountOfDays = latest.DayNumber - earliest.DayNumber;
+        for (int i = 0; i < amountOfDays; i++)
+        {
+            var date = latest.AddDays(i * -1);
+            var dailyArchive = pageViewArchive.DailyArchives.FirstOrDefault(x => x.Id == date.ToString("yyyy-MM-dd"));
+            if (dailyArchive == null)
+            {
+                dailyArchive = await this.aggregateService.CreateAggregateAsync(date);
+                if (date != today)
+                {
+                    pageViewArchive.DailyArchives.Add(dailyArchive);
+                    isDirty = true;
+                }
             }
+
+            result.Add(dailyArchive);
         }
 
-        /*
-        public async DateGroupedPageView LoadPageViewsAsync(DateOnly date)
+        if (isDirty)
         {
-            await using var connection = dbConnectionAccessor.CreateConnection();
-            await connection.OpenAsync();
-
-            try
-            {
-                var dialect = store.Configuration.SqlDialect;
-                var sqlBuilder = dialect.CreateBuilder(tablePrefix);
-
-                sqlBuilder.Select();
-                sqlBuilder.Table(PageView.TableName);
-                sqlBuilder.Selector("*");
-                sqlBuilder.WhereAnd($"{dialect.QuoteForColumnName("Id")} > @Id");
-                sqlBuilder.OrderBy($"{dialect.QuoteForColumnName("Id")}");
-
-                return await connection.QueryAsync<IndexingTask>(sqlBuilder.ToSqlString(), new { Id = afterTaskId });
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "An error occurred while loading page views");
-                throw;
-            }
+            pageViewArchive.DailyArchives = pageViewArchive.DailyArchives.OrderByDescending(x => x.Id).ToList();
+            await documentManager.UpdateAsync(pageViewArchive);
         }
 
-        public async DateGroupedPageView LoadPageViewsAsync(int year, int month)
-        {
-            
-        }
-
-        public async List<DateOnly> LoadAllDaysWithDataAsync()
-        {
-            await using var connection = dbConnectionAccessor.CreateConnection();
-            await connection.OpenAsync();
-
-            try
-            {
-                var dialect = store.Configuration.SqlDialect;
-                var sqlBuilder = dialect.CreateBuilder(tablePrefix);
-
-                sqlBuilder.Select();
-                sqlBuilder.Table(PageView.TableName);
-                sqlBuilder.Selector("*");
-                sqlBuilder.WhereAnd($"{dialect.QuoteForColumnName("Id")} > @Id");
-                sqlBuilder.OrderBy($"{dialect.QuoteForColumnName("Id")}");
-
-                return await connection.QueryAsync<IndexingTask>(sqlBuilder.ToSqlString(), new { Id = afterTaskId });
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "An error occurred while loading page views");
-                throw;
-            }
-        }
-        */
+        return result;
     }
 }

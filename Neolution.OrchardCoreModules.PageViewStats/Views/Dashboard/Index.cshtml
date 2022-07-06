@@ -1,4 +1,4 @@
-﻿@model Neolution.OrchardCoreModules.PageViewStats.ViewModels.PageViewStatsViewModel
+﻿@model Neolution.OrchardCoreModules.PageViewStats.ViewModels.DashboardViewModel
 
 <div class="row">
     <div class="col">
@@ -29,27 +29,20 @@
                     <th>Views</th>
                     <th>Bot Views</th>
                     <th>Unique Visitors</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in Model.DateGroupedPageViews)
+                @foreach (var item in Model.PageViews)
                 {
                     <tr>
-                        <td>@item.Date</td>
-                        <td>@item.Views</td>
+                        <td>@item.Id</td>
+                        <td>@item.TotalViews</td>
                         <td>@item.BotViews</td>
                         <td>@item.UniqueVisitors</td>
+                        <td><a asp-controller="Day" asp-action="Index" asp-route-day="@item.Id" class="btn btn-success btn-sm">@T["Details"]</a></td>
                     </tr>
                 }
-
-                @*@foreach (var item in Model.GroupedPageViews)
-                    {
-                    <tr>
-                    <td>@item.Amount</td>
-                    <td>/@item.Route.Path</td>
-                    <td>@item.DisplayText</td>
-                    </tr>
-                    }*@
             </tbody>
         </table>
     </div>

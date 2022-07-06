@@ -1,50 +1,82 @@
-namespace Neolution.OrchardCoreModules.PageViewStats
+namespace Neolution.OrchardCoreModules.PageViewStats;
+
+using System;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Neolution.OrchardCoreModules.PageViewStats.Controllers;
+using Neolution.OrchardCoreModules.PageViewStats.Drivers;
+using Neolution.OrchardCoreModules.PageViewStats.Navigation;
+using Neolution.OrchardCoreModules.PageViewStats.Services;
+using OrchardCore.Admin;
+using OrchardCore.BackgroundTasks;
+using OrchardCore.Data.Migration;
+using OrchardCore.DisplayManagement.Handlers;
+using OrchardCore.Modules;
+using OrchardCore.Navigation;
+using OrchardCore.Security.Permissions;
+using OrchardCore.Settings;
+using AdminMenu = Neolution.OrchardCoreModules.PageViewStats.Navigation.AdminMenu;
+using MediatR;
+
+
+public class Startup : StartupBase
 {
-    using System;
-    using Microsoft.AspNetCore.Builder;
-    using Microsoft.AspNetCore.Mvc;
-    using Microsoft.AspNetCore.Routing;
-    using Microsoft.Extensions.DependencyInjection;
-    using Neolution.OrchardCoreModules.PageViewStats.Drivers;
-    using Neolution.OrchardCoreModules.PageViewStats.Models;
-    using Neolution.OrchardCoreModules.PageViewStats.Services;
-    using OrchardCore.BackgroundTasks;
-    using OrchardCore.Data.Migration;
-    using OrchardCore.DisplayManagement.Handlers;
-    using OrchardCore.Modules;
-    using OrchardCore.Navigation;
-    using OrchardCore.Security.Permissions;
-    using OrchardCore.Settings;
+    private AdminOptions adminOptions;
 
-    public class Startup : StartupBase
+    public Startup(IOptions<AdminOptions> adminOptions)
     {
-        public override void ConfigureServices(IServiceCollection services)
-        {
-            services.AddScoped<IDisplayDriver<ISite>, PageViewStatsSiteSettingsDisplayDriver>();
-            services.AddScoped<IPermissionProvider, Permissions>();
-            services.AddScoped<INavigationProvider, PageViewStatsSettingsAdminMenu>();
-            services.AddScoped<INavigationProvider, PageViewStatsAdminMenu>();
+        this.adminOptions = adminOptions.Value;
+    }
 
-            services.AddScoped<IDataMigration, Migrations>();
+    public override void ConfigureServices(IServiceCollection services)
+    {
+        services.AddScoped<IDisplayDriver<ISite>, PageViewStatsSettingsDisplayDriver>();
+        services.AddScoped<IPermissionProvider, Permissions>();
+        services.AddScoped<INavigationProvider, SettingsAdminMenu>();
+        services.AddScoped<INavigationProvider, AdminMenu>();
+
+        services.AddScoped<IDataMigration, Migrations>();
             
-            services.AddSingleton<IBotDetector, BotDetector>();
+        services.AddSingleton<IBotDetector, BotDetector>();
+        services.AddScoped<IPageViewsRepository, PageViewsRepository>();
+        services.AddScoped<IAggregateService, AggregateService>();
 
-            services.AddSingleton<IBackgroundTask, ArchivePageViewsBackgroundTask>();
+        services.AddMediatR(typeof(Startup));
 
-            services.Configure<MvcOptions>((options) =>
-            {
-                options.Filters.Add(typeof(PageViewStatsFilter));
-            });
-        }
+        services.AddSingleton<IBackgroundTask, ArchivePageViewsBackgroundTask>();
 
-        public override void Configure(IApplicationBuilder builder, IEndpointRouteBuilder routes, IServiceProvider serviceProvider)
+        services.Configure<MvcOptions>((options) =>
         {
-            routes.MapAreaControllerRoute(
-                name: "PageViewStats_CountPageView",
-                areaName: "Neolution.OrchardCoreModules.PageViewStats",
-                pattern: "PageViewStats/CountPageView",
-                defaults: new { controller = "CountPageView", action = "Index" }
-            );
-        }
+            options.Filters.Add(typeof(PageViewStatsFilter));
+        });
+    }
+
+    public override void Configure(IApplicationBuilder builder, IEndpointRouteBuilder routes, IServiceProvider serviceProvider)
+    {
+        // Frontend routes
+        routes.MapAreaControllerRoute(
+            name: "PageViewStats_CountPageView",
+            areaName: "Neolution.OrchardCoreModules.PageViewStats",
+            pattern: "PageViewStats/CountPageView",
+            defaults: new { controller = "CountPageView", action = "Index" }
+        );
+
+        // Admin routes
+        routes.MapAreaControllerRoute(
+            name: "PageViewStats_DashboardIndex",
+            areaName: "Neolution.OrchardCoreModules.PageViewStats",
+            pattern: this.adminOptions.AdminUrlPrefix + "/PageViewStats/Dashboard",
+            defaults: new { controller = "Dashboard", action = nameof(DashboardController.Index) }
+        );
+
+        routes.MapAreaControllerRoute(
+            name: "PageViewStats_DashboardIndex",
+            areaName: "Neolution.OrchardCoreModules.PageViewStats",
+            pattern: this.adminOptions.AdminUrlPrefix + "/PageViewStats/Day/{day:datetime}", /* /Admin/PageViewStats/Day/2022-07-04 */
+            defaults: new { controller = "Day", action = nameof(DayController.Index) }
+        );
     }
 }

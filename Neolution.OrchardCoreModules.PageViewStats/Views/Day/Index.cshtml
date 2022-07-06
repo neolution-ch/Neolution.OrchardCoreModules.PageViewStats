@@ -1,0 +1,43 @@
+﻿@model Neolution.OrchardCoreModules.PageViewStats.ViewModels.DayIndexViewModel
+
+<div class="row">
+    <div class="col">
+        <h1>Day Statistics (@Model.Date)</h1>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        @if (@Model.Items.Any())
+        {
+            <table class="table table-sm table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>ContentItemId</th>
+                        <th>Page Route</th>
+                        <th>Page Title</th>
+                        <th>Total Views</th>
+                        <th>Bot Views</th>
+                        <th>Unique Visitors</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td>@item.ContentItemId</td>
+                            <td>/@item.Route.Path</td>
+                            <td>@item.DisplayText</td>
+                            <td>@item.TotalViews</td>
+                            <td>@item.BotViews</td>
+                            <td>@item.UniqueVisitors</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p>No page views recorded on this day 😢</p>
+        }
+    </div>
+</div>
