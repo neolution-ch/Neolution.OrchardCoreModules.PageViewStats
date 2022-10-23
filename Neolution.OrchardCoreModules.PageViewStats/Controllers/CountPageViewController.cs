@@ -67,6 +67,11 @@ public class CountPageViewController : Controller
             pageView.RequestUserAgentString = this.Request.Headers.UserAgent.ToString();
             pageView.RequestUserAgentIsRobot = this.botDetector.CheckUserAgentString(pageView.RequestUserAgentString);
         }
+
+        if (settings.CollectRequestReferer)
+        {
+            pageView.RequestReferer = this.Request.Headers.Referer.ToString();
+        }
             
         await using var connection = this.dbConnectionAccessor.CreateConnection();
             

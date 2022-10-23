@@ -36,6 +36,7 @@ public class PageViewStatsSettingsDisplayDriver : SectionDisplayDriver<ISite, Pa
                 m.IsEnabled = settings.IsEnabled;
                 m.CollectUserIp = settings.CollectUserIp;
                 m.CollectUserAgentString = settings.CollectUserAgentString;
+                m.CollectRequestReferer = settings.CollectRequestReferer;
             })
             .Location("Content:1").OnGroup(GroupId);
     }
@@ -58,6 +59,7 @@ public class PageViewStatsSettingsDisplayDriver : SectionDisplayDriver<ISite, Pa
             settings.IsEnabled = model.IsEnabled;
             settings.CollectUserIp = model.CollectUserIp;
             settings.CollectUserAgentString = model.CollectUserAgentString;
+            settings.CollectRequestReferer = model.CollectRequestReferer;
         }
 
         return await EditAsync(settings, context);

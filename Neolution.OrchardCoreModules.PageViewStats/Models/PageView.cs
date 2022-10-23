@@ -15,6 +15,11 @@ public class PageView
     public Guid Id { get; set; } = Guid.NewGuid();
 
     /// <summary>
+    /// The <see cref="DateTimeOffset"/> when the page view was recorded.
+    /// </summary>
+    public DateTimeOffset CreatedUtc { get; set; }
+
+    /// <summary>
     /// The id of the content item that is recorded by the <see cref="PageView"/> instance.
     /// </summary>
     public string ContentItemId { get; set; }
@@ -38,7 +43,7 @@ public class PageView
     public bool? RequestUserAgentIsRobot { get; set; }
 
     /// <summary>
-    /// The <see cref="DateTimeOffset"/> value the task was created.
+    /// Gets or sets the referer of the page view request.
     /// </summary>
-    public DateTimeOffset CreatedUtc { get; set; }
+    public string RequestReferer { get; set; }
 }

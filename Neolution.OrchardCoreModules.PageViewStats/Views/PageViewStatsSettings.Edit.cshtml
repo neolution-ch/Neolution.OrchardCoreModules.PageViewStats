@@ -23,3 +23,11 @@
     </div>
     <span class="hint">@T["Collecting the user agent strings may allow you to track which browsers visitors use to visit your site."]</span>
 </fieldset>
+
+<fieldset class="form-group" asp-validation-class-for="CollectRequestReferer">
+    <div class="custom-control custom-checkbox">
+        <input asp-for="CollectRequestReferer" class="custom-control-input" type="checkbox" />
+        <label asp-for="CollectRequestReferer" class="custom-control-label">@T["Collect request referer of visitors"]</label>
+    </div>
+    <span class="hint">@T["Collecting the request referer may allow you to track which from which website the visitors where linked to your site."]</span>
+</fieldset>
