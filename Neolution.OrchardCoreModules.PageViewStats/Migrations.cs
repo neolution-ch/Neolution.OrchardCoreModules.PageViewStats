@@ -23,4 +23,13 @@ public class Migrations : DataMigration
             
         return 1;
     }
+
+    public int UpdateFrom1()
+    {
+        SchemaBuilder.AlterTable(PageView.TableName, table => table
+            .AddColumn<string>(nameof(PageView.RequestReferer))
+        );
+
+        return 2;
+    }
 }
