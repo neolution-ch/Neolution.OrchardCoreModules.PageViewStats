@@ -20,7 +20,7 @@ using OrchardCore.Security.Permissions;
 using OrchardCore.Settings;
 using AdminMenu = Neolution.OrchardCoreModules.PageViewStats.Navigation.AdminMenu;
 using MediatR;
-
+using OrchardCore.ContentManagement.Display.ContentDisplay;
 
 public class Startup : StartupBase
 {
@@ -43,6 +43,8 @@ public class Startup : StartupBase
         services.AddSingleton<IBotDetector, BotDetector>();
         services.AddScoped<IPageViewsRepository, PageViewsRepository>();
         services.AddScoped<IAggregateService, AggregateService>();
+
+        services.AddScoped<IContentDisplayDriver, PageViewStatsContentDisplayDriver>();
 
         services.AddMediatR(typeof(Startup));
 
