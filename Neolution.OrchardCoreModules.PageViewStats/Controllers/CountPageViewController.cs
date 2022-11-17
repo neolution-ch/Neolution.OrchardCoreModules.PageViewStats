@@ -82,6 +82,7 @@ public class CountPageViewController : Controller
             $"  {dialect.QuoteForColumnName(nameof(PageView.ContentItemId))}, " +
             $"  {dialect.QuoteForColumnName(nameof(PageView.RequestIpAddress))}, " +
             $"  {dialect.QuoteForColumnName(nameof(PageView.RequestUserAgentString))}, " +
+            $"  {dialect.QuoteForColumnName(nameof(PageView.RequestReferer))}, " +
             $"  {dialect.QuoteForColumnName(nameof(PageView.RequestUserAgentIsRobot))}) " +
             $"VALUES (" +
             $"  @{nameof(PageView.Id)}, " +
@@ -89,6 +90,7 @@ public class CountPageViewController : Controller
             $"  @{nameof(PageView.ContentItemId)}, " +
             $"  @{nameof(PageView.RequestIpAddress)}, " +
             $"  @{nameof(PageView.RequestUserAgentString)}, " +
+            $"  @{nameof(PageView.RequestReferer)}, " +
             $"  @{nameof(PageView.RequestUserAgentIsRobot)});";
 
         await connection.ExecuteAsync(insertCmd, pageView);
