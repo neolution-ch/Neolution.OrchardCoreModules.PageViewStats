@@ -39,24 +39,26 @@
             }
             
             // Should only render for users with proper permissions
-            if (!await authorizationService.AuthorizeAsync(context?.User, PageViewStatsPermissions.ViewPageViewStats))
+            if (!await authorizationService.AuthorizeAsync(context?.User, PageViewStatsPermissions.ViewPageViewStats).ConfigureAwait(false))
             {
                 return null;
             }
 
-            var settings = await this.siteService.GetSiteSettingsAsync();
+            var settings = await this.siteService.GetSiteSettingsAsync().ConfigureAwait(false);
             var tz = TimeZoneInfo.FindSystemTimeZoneById(settings.TimeZoneId);
             var now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tz);
             var today = DateOnly.FromDateTime(now);
 
-            var pageViews = await this.repository.LoadPageViewsAsync(today.AddDays(-30), today);
+            var pageViews = await this.repository.LoadPageViewsAsync(today.AddDays(-30), today).ConfigureAwait(false);
             var contentPageViews = pageViews.SelectMany(x => x.PageViews).Where(x => x.ContentItemId == contentItem.ContentItemId).ToList();
+            var totalViews = await this.repository.LoadAllPageViewsAsync().ConfigureAwait(false);
+            var contentPageTotalViews = totalViews.SelectMany(x => x.PageViews).Where(x => x.ContentItemId == contentItem.ContentItemId).ToList();
 
             return Initialize<PageViewStatsContentDisplayViewModel>("PageViewStatsPart_SummaryAdmin", m =>
                 {
                     m.DailyViews = contentPageViews.Select(x => x.TotalViews).FirstOrDefault();
                     m.MonthlyViews = contentPageViews.Sum(x => x.TotalViews);
-                    m.TotalViews = pageViews.Count;
+                    m.TotalViews = contentPageTotalViews.Sum(x => x.TotalViews);
                 })
                 .Location("SummaryAdmin", "Meta:90");
         }
