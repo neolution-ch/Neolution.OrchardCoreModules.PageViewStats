@@ -21,11 +21,10 @@ public class PageViewStatsSettingsDisplayDriver : SectionDisplayDriver<ISite, Pa
         _httpContextAccessor = httpContextAccessor;
         _authorizationService = authorizationService;
     }
-
+    
     public override async Task<IDisplayResult> EditAsync(PageViewStatsSettings settings, BuildEditorContext context)
     {
         var user = _httpContextAccessor.HttpContext?.User;
-
         if (!await _authorizationService.AuthorizeAsync(user, PageViewStatsPermissions.ManagePageViewStats))
         {
             return null;

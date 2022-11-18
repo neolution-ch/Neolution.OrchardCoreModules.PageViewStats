@@ -61,6 +61,7 @@ public class AggregateService : IAggregateService
 
 public interface IPageViewsRepository
 {
+    Task<IList<DailyArchive>> LoadAllPageViewsAsync();
     Task<IList<DailyArchive>> LoadPageViewsAsync(DateOnly earliest, DateOnly latest);
 }
 
@@ -75,6 +76,27 @@ public class PageViewsRepository : IPageViewsRepository
         this.siteService = siteService;
         this.aggregateService = aggregateService;
         this.documentManager = documentManager;
+    }
+
+    public async Task<IList<DailyArchive>> LoadAllPageViewsAsync()
+    {
+        var pageViewArchive = await documentManager.GetOrCreateImmutableAsync();
+        var result = pageViewArchive.DailyArchives;
+
+        var settings = await this.siteService.GetSiteSettingsAsync();
+        var today = DateOnlyExtensions.Today(settings);
+
+        var isTodayIncluded = pageViewArchive.DailyArchives.Any(x => x.Id == today.ToString("yyyy-MM-dd"));
+        if (!isTodayIncluded)
+        {
+            var todayViewArchive = await LoadPageViewsAsync(today.AddDays(-1), today).ConfigureAwait(false);
+            if (todayViewArchive.Any())
+            {
+                result.Insert(0, todayViewArchive.First());
+            }
+        }
+
+        return result;
     }
 
     public async Task<IList<DailyArchive>> LoadPageViewsAsync(DateOnly earliest, DateOnly latest)
