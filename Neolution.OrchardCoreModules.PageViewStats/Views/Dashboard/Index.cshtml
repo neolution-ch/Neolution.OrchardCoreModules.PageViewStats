@@ -1,27 +1,46 @@
 ﻿@model Neolution.OrchardCoreModules.PageViewStats.ViewModels.DashboardViewModel
 
+@functions
+{
+    string GetDropDownButtonText()
+    {
+        return Model.History > 0 ? $"Last {Model.History} days" : "Since ever";
+    }
+}
+
 <div class="row">
     <div class="col">
         <h1>Page View Statistics</h1>
-        <div class="form-group d-inline-flex float-right mb-1">
+    </div>
+</div>
+
+<ul class="nav nav-tabs">
+    <li class="nav-item pr-md-2">
+        <a class="nav-link active" id="byday-tab" data-bs-toggle="tab" href="#byday" role="tab" aria-controls="byday" aria-selected="true">@T["By day"]</a>
+    </li>
+    <li class="nav-item pr-md-2">
+        <a class="nav-link" id="bysite-tab" data-bs-toggle="tab" href="#bysite" role="tab" aria-controls="bysite">@T["By site"]</a>
+    </li>
+</ul>
+
+<div class="tab-content" id="tabs">
+
+    <div class="tab-pane fade show active" id="byday" role="tabpanel" aria-labelledby="byday-tab">
+        <div class="form-group d-inline-flex float-end mb-1">
             <div class="btn-group">
                 <div class="dropdown order-md-1">
                     <button type="button" class="btn btn-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                        Last @Model.History days
+                        @GetDropDownButtonText()
                     </button>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="?history=7">Last week</a></li>
-                        <li><a class="dropdown-item" href="?history=14">Last two weeks</a></li>
-                        <li><a class="dropdown-item" href="?history=21">Last three weeks</a></li>
-                        <li><a class="dropdown-item" href="?history=30">Last month</a></li>
+                        <li><a class="dropdown-item" href="?history=7#byday">Last week</a></li>
+                        <li><a class="dropdown-item" href="?history=14#byday">Last two weeks</a></li>
+                        <li><a class="dropdown-item" href="?history=21#byday">Last three weeks</a></li>
+                        <li><a class="dropdown-item" href="?history=30#byday">Last month</a></li>
                     </ul>
                 </div>
             </div>
         </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col">
         <table class="table table-sm table-striped table-hover">
             <thead>
                 <tr>
@@ -33,7 +52,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in Model.PageViews)
+                @foreach (var item in Model.PageViewsByDay)
                 {
                     <tr>
                         <td>@item.Id</td>
@@ -46,4 +65,55 @@
             </tbody>
         </table>
     </div>
+    <div class="tab-pane fade" id="bysite" role="tabpanel" aria-labelledby="bysite-tab">
+        <div class="form-group d-inline-flex float-end mb-1">
+            <div class="btn-group">
+                <div class="dropdown order-md-1">
+                    <button type="button" class="btn btn-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        @GetDropDownButtonText()
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="?history=7#bysite">Last week</a></li>
+                        <li><a class="dropdown-item" href="?history=14#bysite">Last two weeks</a></li>
+                        <li><a class="dropdown-item" href="?history=21#bysite">Last three weeks</a></li>
+                        <li><a class="dropdown-item" href="?history=30#bysite">Last month</a></li>
+                        <li><a class="dropdown-item" href="?history=0#bysite">Since ever</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <table class="table table-sm table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>ContentItemId</th>
+                    <th>Page Title</th>
+                    <th>Route</th>
+                    <th>Views</th>
+                    <th>Bot Views</th>
+                    <th>Unique Visitors</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.PageViewsBySite)
+                {
+                    <tr>
+                        <td>@item.ContentItemId</td>
+                        <td>@item.DisplayText</td>
+                        <td>/@item.Route.Path</td>
+                        <td>@item.TotalViews</td>
+                        <td>@item.BotViews</td>
+                        <td>@item.UniqueVisitors</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>
+
+<script at="Foot">
+    $('document').ready(function () {
+        let selectedTab = window.location.hash;
+        let tabTrigger = new bootstrap.Tab($('.nav-link[href="' + selectedTab + '"]:first'));
+        tabTrigger.show();
+    });
+</script>
