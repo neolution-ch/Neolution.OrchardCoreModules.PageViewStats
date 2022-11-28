@@ -3,6 +3,13 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    <Authors>Neolution AG</Authors>
+    <Company>Neolution AG</Company>
+    <Product>PageViewStats - An OrchardCore module by Neolution AG</Product>
+    <Description>OrchardCore module to collect and analyze page views from your visitors</Description>
+    <PackageProjectUrl>https://github.com/neolution-ch/Neolution.OrchardCoreModules.PageViewStats</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
