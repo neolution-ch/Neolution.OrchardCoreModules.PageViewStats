@@ -1,6 +1,8 @@
 namespace Neolution.OrchardCoreModules.PageViewStats.Controllers;
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,6 +10,7 @@ using Neolution.OrchardCoreModules.PageViewStats.Models;
 using Neolution.OrchardCoreModules.PageViewStats.Services;
 using Neolution.OrchardCoreModules.PageViewStats.ViewModels;
 using OrchardCore.Admin;
+using OrchardCore.Autoroute.Models;
 using OrchardCore.ContentManagement;
 using OrchardCore.Data;
 using OrchardCore.Settings;
@@ -46,20 +49,58 @@ public class DashboardController : Controller
             return Forbid();
         }
 
-        if (history > 30 || history <= 0)
-        {
-            // Limit history to maximum number of 30 days
-            history = 30;
-        }
-
         var settings = await this.siteService.GetSiteSettingsAsync();
         var tz = TimeZoneInfo.FindSystemTimeZoneById(settings.TimeZoneId);
         var now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tz);
         var today = DateOnly.FromDateTime(now);
 
-        var pageViews = await this.repository.LoadPageViewsAsync(today.AddDays(history * -1), today);
+        IList<DailyArchive> pageViews;
+        if (history == 0)
+        {
+            pageViews = await this.repository.LoadAllPageViewsAsync();
+        }
+        else
+        {
+            if (history > 30 || history <= 1)
+            {
+                // Limit history to maximum number of 30 days
+                history = 30;
+            }
 
-        var viewModel = new DashboardViewModel { History = history, PageViews = pageViews };
+            pageViews = await this.repository.LoadPageViewsAsync(today.AddDays(history * -1), today);
+        }
+
+        var contentItems = await this.contentManager.GetAsync(pageViews.SelectMany(x => x.PageViews).Select(x => x.ContentItemId));
+        var contentItemList = contentItems.ToList();
+        var pageViewsPerSite = new List<PageViewsPerContentItem>();
+        foreach (var groupedItems in pageViews.SelectMany(x => x.PageViews).GroupBy(x => x.ContentItemId))
+        {
+            var pageView = contentItemList.FirstOrDefault(x => x.ContentItemId == groupedItems.Key);
+            if (pageView == null)
+            {
+                continue;
+            }
+
+            var item = new PageViewsPerContentItem
+            {
+                ContentItemId = groupedItems.Key,
+                DisplayText = pageView.DisplayText,
+                Route = pageView.Get<AutoroutePart>("AutoroutePart"),
+                BotViews = groupedItems.Sum(g => g.BotViews),
+                UniqueVisitors = groupedItems.Sum(g => g.UniqueVisitors),
+                TotalViews = groupedItems.Sum(g => g.TotalViews),
+            };
+
+            pageViewsPerSite.Add(item);
+        }
+
+
+        var viewModel = new DashboardViewModel
+        {
+            History = history,
+            PageViewsByDay = pageViews,
+            PageViewsBySite = pageViewsPerSite
+        };
 
         return View(viewModel);
     }
