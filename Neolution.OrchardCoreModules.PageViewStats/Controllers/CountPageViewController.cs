@@ -26,13 +26,15 @@ public class CountPageViewController : Controller
 
     private readonly ISession session;
     private readonly IDbConnectionAccessor dbConnectionAccessor;
+    private readonly IStore store;
     private readonly ISiteService siteService;
     private readonly IBotDetector botDetector;
 
-    public CountPageViewController(ISession session, IDbConnectionAccessor dbConnectionAccessor, ISiteService siteService, IBotDetector botDetector)
+    public CountPageViewController(ISession session, IDbConnectionAccessor dbConnectionAccessor, IStore store, ISiteService siteService, IBotDetector botDetector)
     {
         this.session = session;
         this.dbConnectionAccessor = dbConnectionAccessor;
+        this.store = store;
         this.siteService = siteService;
         this.botDetector = botDetector;
 
@@ -76,7 +78,7 @@ public class CountPageViewController : Controller
         await using var connection = this.dbConnectionAccessor.CreateConnection();
             
         var insertCmd =
-            $"INSERT INTO {dialect.QuoteForTableName(table)} (" +
+            $"INSERT INTO {dialect.QuoteForTableName(table, this.store.Configuration.Schema)} (" +
             $"  {dialect.QuoteForColumnName(nameof(PageView.Id))}, " +
             $"  {dialect.QuoteForColumnName(nameof(PageView.CreatedUtc))}, " +
             $"  {dialect.QuoteForColumnName(nameof(PageView.ContentItemId))}, " +
