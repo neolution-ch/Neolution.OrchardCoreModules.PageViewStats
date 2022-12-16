@@ -19,7 +19,7 @@
         <a class="nav-link active" id="byday-tab" data-bs-toggle="tab" href="#byday" role="tab" aria-controls="byday" aria-selected="true">@T["By day"]</a>
     </li>
     <li class="nav-item pr-md-2">
-        <a class="nav-link" id="bysite-tab" data-bs-toggle="tab" href="#bysite" role="tab" aria-controls="bysite">@T["By site"]</a>
+        <a class="nav-link" id="bycontentitem-tab" data-bs-toggle="tab" href="#bycontentitem" role="tab" aria-controls="bycontentitem">@T["By content item"]</a>
     </li>
 </ul>
 
@@ -65,7 +65,7 @@
             </tbody>
         </table>
     </div>
-    <div class="tab-pane fade" id="bysite" role="tabpanel" aria-labelledby="bysite-tab">
+    <div class="tab-pane fade" id="bycontentitem" role="tabpanel" aria-labelledby="bycontentitem-tab">
         <div class="form-group d-inline-flex float-end mb-1">
             <div class="btn-group">
                 <div class="dropdown order-md-1">
@@ -73,11 +73,11 @@
                         @GetDropDownButtonText()
                     </button>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="?history=7#bysite">Last week</a></li>
-                        <li><a class="dropdown-item" href="?history=14#bysite">Last two weeks</a></li>
-                        <li><a class="dropdown-item" href="?history=21#bysite">Last three weeks</a></li>
-                        <li><a class="dropdown-item" href="?history=30#bysite">Last month</a></li>
-                        <li><a class="dropdown-item" href="?history=0#bysite">Since ever</a></li>
+                        <li><a class="dropdown-item" href="?history=7#bycontentitem">Last week</a></li>
+                        <li><a class="dropdown-item" href="?history=14#bycontentitem">Last two weeks</a></li>
+                        <li><a class="dropdown-item" href="?history=21#bycontentitem">Last three weeks</a></li>
+                        <li><a class="dropdown-item" href="?history=30#bycontentitem">Last month</a></li>
+                        <li><a class="dropdown-item" href="?history=0#bycontentitem">Since ever</a></li>
                     </ul>
                 </div>
             </div>
@@ -94,7 +94,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in Model.PageViewsBySite)
+                @foreach (var item in Model.PageViewsByContentItem)
                 {
                     <tr>
                         <td>@item.ContentItemId</td>

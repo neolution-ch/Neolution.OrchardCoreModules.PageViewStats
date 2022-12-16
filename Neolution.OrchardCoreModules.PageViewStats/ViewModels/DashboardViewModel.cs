@@ -7,5 +7,5 @@ public class DashboardViewModel
 {
     public int History { get; set; }
     public IList<DailyArchive> PageViewsByDay { get; set; }
-    public List<PageViewsPerContentItem> PageViewsBySite { get; set; }
+    public List<PageViewsPerContentItem> PageViewsByContentItem { get; set; }
 }
