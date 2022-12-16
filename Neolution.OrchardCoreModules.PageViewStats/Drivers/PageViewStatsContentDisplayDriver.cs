@@ -12,6 +12,8 @@
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Http;
     using OrchardCore.Admin;
+    using Neolution.OrchardCoreModules.PageViewStats.Settings;
+    using OrchardCore.Entities;
 
     public class PageViewStatsContentDisplayDriver : ContentDisplayDriver
     {
@@ -43,11 +45,16 @@
             {
                 return null;
             }
-
             var settings = await this.siteService.GetSiteSettingsAsync().ConfigureAwait(false);
             var tz = TimeZoneInfo.FindSystemTimeZoneById(settings.TimeZoneId);
             var now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tz);
             var today = DateOnly.FromDateTime(now);
+
+            var pageViewsettings = settings.As<PageViewStatsSettings>();
+            if (!pageViewsettings.RenderInContentItem)
+            {
+                return null;
+            }
 
             var pageViews = await this.repository.LoadPageViewsAsync(today.AddDays(-30), today).ConfigureAwait(false);
             var contentPageViews = pageViews.SelectMany(x => x.PageViews).Where(x => x.ContentItemId == contentItem.ContentItemId).ToList();

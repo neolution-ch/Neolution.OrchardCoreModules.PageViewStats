@@ -31,3 +31,11 @@
     </div>
     <span class="hint">@T["Collecting the request referer may allow you to track which from which website the visitors where linked to your site."]</span>
 </fieldset>
+
+<fieldset class="form-group" asp-validation-class-for="RenderInContentItem">
+    <div class="custom-control custom-checkbox">
+        <input asp-for="RenderInContentItem" class="custom-control-input" type="checkbox" />
+        <label asp-for="RenderInContentItem" class="custom-control-label">@T["Render stats summary in content items"]</label>
+    </div>
+    <span class="hint">@T["Renders an overview of the page view statistics for each content item next to it in the content items section."]</span>
+</fieldset>

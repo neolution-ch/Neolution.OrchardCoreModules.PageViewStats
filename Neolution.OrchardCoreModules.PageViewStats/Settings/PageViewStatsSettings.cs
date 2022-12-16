@@ -15,4 +15,6 @@ public class PageViewStatsSettings
     public bool CollectUserAgentString { get; set; }
 
     public bool CollectRequestReferer { get; set; }
+
+    public bool RenderInContentItem { get; set; }
 }

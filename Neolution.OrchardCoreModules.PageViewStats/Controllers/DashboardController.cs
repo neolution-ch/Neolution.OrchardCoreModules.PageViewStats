@@ -99,7 +99,7 @@ public class DashboardController : Controller
         {
             History = history,
             PageViewsByDay = pageViews,
-            PageViewsBySite = pageViewsPerSite
+            PageViewsByContentItem = pageViewsPerSite
         };
 
         return View(viewModel);
